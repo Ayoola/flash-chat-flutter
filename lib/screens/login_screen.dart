@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flash_chat/components/rounded_button.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -13,6 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   AuthResult _authResult;
   String email;
   String password;
+  bool isSpinnerVisible = false;
 
   Future<void> logUserIn() async {
     try {
@@ -20,6 +22,18 @@ class _LoginScreenState extends State<LoginScreen> {
           await _auth.signInWithEmailAndPassword(email: this.email, password: this.password);
     } catch (e) {
       print(e);
+    }
+  }
+
+  void toggleSpinner() {
+    if (isSpinnerVisible == true) {
+      setState(() {
+        isSpinnerVisible = false;
+      });
+    } else {
+      setState(() {
+        isSpinnerVisible = true;
+      });
     }
   }
 
@@ -36,57 +50,62 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Hero(
-              tag: 'logo',
-              child: Container(
-                height: 200.0,
-                child: Image.asset('images/logo.png'),
+      body: ModalProgressHUD(
+        inAsyncCall: isSpinnerVisible,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Hero(
+                tag: 'logo',
+                child: Container(
+                  height: 200.0,
+                  child: Image.asset('images/logo.png'),
+                ),
               ),
-            ),
-            SizedBox(
-              height: 48.0,
-            ),
-            TextField(
-              onChanged: (value) {
-                this.email = value;
-              },
-              keyboardType: TextInputType.emailAddress,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black),
-              decoration: kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
-            ),
-            SizedBox(
-              height: 8.0,
-            ),
-            TextField(
-              onChanged: (value) {
-                this.password = value;
-              },
-              obscureText: true,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.black),
-              decoration: kTextFieldDecoration.copyWith(hintText: 'Enter your password'),
-            ),
-            SizedBox(
-              height: 24.0,
-            ),
-            RoundedButton(
-              label: 'Log In',
-              color: Colors.lightBlueAccent,
-              onPressed: () async {
-                await logUserIn();
-                if (isSuccessfulLogin()) {
-                  Navigator.pushNamed(context, '/chat');
-                }
-              },
-            ),
-          ],
+              SizedBox(
+                height: 48.0,
+              ),
+              TextField(
+                onChanged: (value) {
+                  this.email = value;
+                },
+                keyboardType: TextInputType.emailAddress,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.black),
+                decoration: kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
+              ),
+              SizedBox(
+                height: 8.0,
+              ),
+              TextField(
+                onChanged: (value) {
+                  this.password = value;
+                },
+                obscureText: true,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.black),
+                decoration: kTextFieldDecoration.copyWith(hintText: 'Enter your password'),
+              ),
+              SizedBox(
+                height: 24.0,
+              ),
+              RoundedButton(
+                label: 'Log In',
+                color: Colors.lightBlueAccent,
+                onPressed: () async {
+                  toggleSpinner();
+                  await logUserIn();
+                  toggleSpinner();
+                  if (isSuccessfulLogin()) {
+                    Navigator.pushNamed(context, '/chat');
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

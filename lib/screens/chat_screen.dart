@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flash_chat/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -8,8 +9,10 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final Firestore _firestore = Firestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseUser currentUser;
+  String messageText;
 
   bool isLoggedIn() {
     return (currentUser != null) ? true : false;
@@ -21,8 +24,26 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       print(e);
     }
-    if (isLoggedIn()) {
-      print(currentUser.email);
+  }
+
+  Future<void> logUserOut() async {
+    await _auth.signOut();
+  }
+
+  Future<void> sendMessage() async {
+    await _firestore.collection('messages').add(
+      {
+        'messageText': this.messageText,
+        'messageSender': currentUser.email,
+      },
+    );
+  }
+
+  void getMessageStream() async {
+    await for (var messageSnapshot in _firestore.collection('messages').snapshots()) {
+      for (var document in messageSnapshot.documents) {
+        print(document.data);
+      }
     }
   }
 
@@ -30,6 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     getCurrentUser();
+    getMessageStream();
   }
 
   @override
@@ -40,8 +62,9 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.close),
-              onPressed: () {
-                //Implement logout functionality
+              onPressed: () async {
+                await logUserOut();
+                Navigator.pushNamed(context, '/');
               }),
         ],
         title: Text('⚡️Chat'),
@@ -60,14 +83,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   Expanded(
                     child: TextField(
                       onChanged: (value) {
-                        //Do something with the user input.
+                        this.messageText = value;
                       },
+                      style: TextStyle(color: Colors.black),
                       decoration: kMessageTextFieldDecoration,
                     ),
                   ),
                   FlatButton(
-                    onPressed: () {
-                      //Implement send functionality.
+                    onPressed: () async {
+                      await sendMessage();
                     },
                     child: Text(
                       'Send',
