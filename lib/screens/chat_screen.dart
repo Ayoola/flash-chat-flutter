@@ -51,7 +51,6 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     getCurrentUser();
-    getMessageStream();
   }
 
   @override
@@ -75,6 +74,26 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            Container(
+              child: StreamBuilder(
+                stream: _firestore.collection('messages').snapshots(),
+                builder: (context, asyncSnapshot) {
+                  List<Text> messageDocumentTextWidgets = [];
+                  if (asyncSnapshot.hasData) {
+                    QuerySnapshot messagesSnapshot = asyncSnapshot.data;
+                    for (var document in messagesSnapshot.documents) {
+                      final documentMessageText = document.data['messageText'];
+                      final documentMessageSender = document.data['messageSender'];
+                      final messageDocumentTextWidget = Text(
+                        "$documentMessageText from $documentMessageSender}",
+                      );
+                      messageDocumentTextWidgets.add(messageDocumentTextWidget);
+                    }
+                  }
+                  return Column(children: messageDocumentTextWidgets);
+                },
+              ),
+            ),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
