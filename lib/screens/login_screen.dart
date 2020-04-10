@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flash_chat/components/rounded_button.dart';
 import 'package:flash_chat/constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -8,6 +9,34 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  AuthResult _authResult;
+  FirebaseUser currentUser;
+  String email;
+  String password;
+
+  Future<void> logUserIn() async {
+    try {
+      _authResult =
+          await _auth.signInWithEmailAndPassword(email: this.email, password: this.password);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  bool isSuccessfulLogin() {
+    return (_authResult != null) ? true : false;
+  }
+
+  bool isLoggedIn() {
+    return (currentUser != null) ? true : false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,8 +59,10 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             TextField(
               onChanged: (value) {
-                //Do something with the user input.
+                this.email = value;
               },
+              keyboardType: TextInputType.emailAddress,
+              textAlign: TextAlign.center,
               style: TextStyle(color: Colors.black),
               decoration: kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
             ),
@@ -40,8 +71,10 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             TextField(
               onChanged: (value) {
-                //Do something with the user input.
+                this.password = value;
               },
+              obscureText: true,
+              textAlign: TextAlign.center,
               style: TextStyle(color: Colors.black),
               decoration: kTextFieldDecoration.copyWith(hintText: 'Enter your password'),
             ),
@@ -51,8 +84,11 @@ class _LoginScreenState extends State<LoginScreen> {
             RoundedButton(
               label: 'Log In',
               color: Colors.lightBlueAccent,
-              onPressed: () {
-                //TODO implement login functionality;
+              onPressed: () async {
+                await logUserIn();
+                if (isSuccessfulLogin()) {
+                  Navigator.pushNamed(context, '/chat');
+                }
               },
             ),
           ],
