@@ -11,7 +11,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   AuthResult _authResult;
-  FirebaseUser currentUser;
   String email;
   String password;
 
@@ -26,10 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool isSuccessfulLogin() {
     return (_authResult != null) ? true : false;
-  }
-
-  bool isLoggedIn() {
-    return (currentUser != null) ? true : false;
   }
 
   @override
