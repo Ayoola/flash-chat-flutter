@@ -18,8 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> logUserIn() async {
     try {
-      _authResult =
-          await _auth.signInWithEmailAndPassword(email: this.email, password: this.password);
+      _authResult = await _auth.signInWithEmailAndPassword(email: this.email, password: this.password);
     } catch (e) {
       print(e);
     }
@@ -58,11 +57,13 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Hero(
-                tag: 'logo',
-                child: Container(
-                  height: 200.0,
-                  child: Image.asset('images/logo.png'),
+              Flexible(
+                child: Hero(
+                  tag: 'logo',
+                  child: Container(
+                    height: 200.0,
+                    child: Image.asset('images/logo.png'),
+                  ),
                 ),
               ),
               SizedBox(

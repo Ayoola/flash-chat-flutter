@@ -18,8 +18,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
   Future<void> registerNewUser() async {
     try {
-      _authResult =
-          await _auth.createUserWithEmailAndPassword(email: this.email, password: this.password);
+      _authResult = await _auth.createUserWithEmailAndPassword(email: this.email, password: this.password);
     } catch (e) {
       print(e);
     }
@@ -53,11 +52,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Hero(
-                tag: 'logo',
-                child: Container(
-                  height: 200.0,
-                  child: Image.asset('images/logo.png'),
+              Flexible(
+                child: Hero(
+                  tag: 'logo',
+                  child: Container(
+                    height: 200.0,
+                    child: Image.asset('images/logo.png'),
+                  ),
                 ),
               ),
               SizedBox(

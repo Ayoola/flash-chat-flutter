@@ -87,6 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     final messageBubble = MessageBubble(
                       messageSender: documentMessageSender,
                       messageText: documentMessageText,
+                      isMyBubble: documentMessageSender == currentUser.email,
                     );
                     messageBubbles.add(messageBubble);
                   }
@@ -137,15 +138,16 @@ class _ChatScreenState extends State<ChatScreen> {
 class MessageBubble extends StatelessWidget {
   final String messageSender;
   final String messageText;
+  final bool isMyBubble;
 
-  MessageBubble({this.messageSender, this.messageText});
+  MessageBubble({this.messageSender, this.messageText, this.isMyBubble});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(5.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: isMyBubble ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           Text(
             messageSender,
@@ -155,8 +157,13 @@ class MessageBubble extends StatelessWidget {
           ),
           Material(
             elevation: 1.0,
-            borderRadius: BorderRadius.circular(10.0),
-            color: Colors.lightBlueAccent,
+            borderRadius: BorderRadius.only(
+              topLeft: !isMyBubble ? Radius.circular(1.0) : Radius.circular(15.0),
+              topRight: isMyBubble ? Radius.circular(1.0) : Radius.circular(15.0),
+              bottomLeft: Radius.circular(15.0),
+              bottomRight: Radius.circular(15.0),
+            ),
+            color: isMyBubble ? Colors.lightBlueAccent : Colors.purpleAccent,
             child: Padding(
               padding: EdgeInsets.all(10.0),
               child: Text(
