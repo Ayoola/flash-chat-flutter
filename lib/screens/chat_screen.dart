@@ -36,16 +36,9 @@ class _ChatScreenState extends State<ChatScreen> {
       {
         'messageText': this.messageText,
         'messageSender': currentUser.email,
+        'timestamp': DateTime.now(),
       },
     );
-  }
-
-  void getMessageStream() async {
-    await for (var messageSnapshot in _firestore.collection('messages').snapshots()) {
-      for (var document in messageSnapshot.documents) {
-        print(document.data);
-      }
-    }
   }
 
   @override
@@ -94,6 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
                 return Expanded(
                   child: ListView(
+                    reverse: true,
                     padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
                     children: messageBubbles,
                   ),
