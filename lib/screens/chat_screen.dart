@@ -69,7 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             StreamBuilder(
-              stream: _firestore.collection('messages').snapshots(),
+              stream: _firestore.collection('messages').orderBy('timestamp', descending: true).snapshots(),
               builder: (context, asyncSnapshot) {
                 List<MessageBubble> messageBubbles = [];
                 if (asyncSnapshot.hasData) {
