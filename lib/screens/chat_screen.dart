@@ -13,6 +13,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseUser currentUser;
   String messageText;
+  final messageTextController = TextEditingController();
 
   bool isLoggedIn() {
     return (currentUser != null) ? true : false;
@@ -74,25 +75,29 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Container(
-              child: StreamBuilder(
-                stream: _firestore.collection('messages').snapshots(),
-                builder: (context, asyncSnapshot) {
-                  List<Text> messageDocumentTextWidgets = [];
-                  if (asyncSnapshot.hasData) {
-                    QuerySnapshot messagesSnapshot = asyncSnapshot.data;
-                    for (var document in messagesSnapshot.documents) {
-                      final documentMessageText = document.data['messageText'];
-                      final documentMessageSender = document.data['messageSender'];
-                      final messageDocumentTextWidget = Text(
-                        "$documentMessageText from $documentMessageSender}",
-                      );
-                      messageDocumentTextWidgets.add(messageDocumentTextWidget);
-                    }
+            StreamBuilder(
+              stream: _firestore.collection('messages').snapshots(),
+              builder: (context, asyncSnapshot) {
+                List<MessageBubble> messageBubbles = [];
+                if (asyncSnapshot.hasData) {
+                  QuerySnapshot messagesSnapshot = asyncSnapshot.data;
+                  for (var document in messagesSnapshot.documents) {
+                    final documentMessageText = document.data['messageText'];
+                    final documentMessageSender = document.data['messageSender'];
+                    final messageBubble = MessageBubble(
+                      messageSender: documentMessageSender,
+                      messageText: documentMessageText,
+                    );
+                    messageBubbles.add(messageBubble);
                   }
-                  return Column(children: messageDocumentTextWidgets);
-                },
-              ),
+                }
+                return Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
+                    children: messageBubbles,
+                  ),
+                );
+              },
             ),
             Container(
               decoration: kMessageContainerDecoration,
@@ -101,6 +106,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
+                      controller: messageTextController,
                       onChanged: (value) {
                         this.messageText = value;
                       },
@@ -111,6 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   FlatButton(
                     onPressed: () async {
                       await sendMessage();
+                      messageTextController.clear();
                     },
                     child: Text(
                       'Send',
@@ -122,6 +129,46 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class MessageBubble extends StatelessWidget {
+  final String messageSender;
+  final String messageText;
+
+  MessageBubble({this.messageSender, this.messageText});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(5.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          Text(
+            messageSender,
+            style: TextStyle(
+              fontSize: 10.0,
+            ),
+          ),
+          Material(
+            elevation: 1.0,
+            borderRadius: BorderRadius.circular(10.0),
+            color: Colors.lightBlueAccent,
+            child: Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Text(
+                messageText,
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
